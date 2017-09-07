@@ -6,18 +6,27 @@
  * Desc:
  */
 import React, {Component} from "react";
-import {StyleSheet, View, TextInput, Button} from "react-native";
+import {StyleSheet, View, Animated} from "react-native";
 import WebIM from "../Lib/WebIM";
 import StorageUtil from "../utils/StorageUtil";
 import {NavigationActions} from "react-navigation";
 import ToastUtils from "../utils/ToastUtils";
+import {getPlatformValue} from "../utils/index";
+import {BackgroundWrapper, AlertStatus, Heading, Logo, Input, Button} from "../components/index";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class LoginScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            animation: {
+                usernamePostionLeft: new Animated.Value(795),
+                passwordPositionLeft: new Animated.Value(905),
+                loginPositionTop: new Animated.Value(1402),
+                statusPositionTop: new Animated.Value(1542)
+            }
         };
         StorageUtil.get('username', (err, data) => {
             if (data) this.setState({username: data})
@@ -25,65 +34,32 @@ export default class LoginScreen extends Component {
         this.imListen();
     }
 
-    render() {
-        return (
-            <View style={styles.container}>
-                <TextInput
-                    onChangeText={text => this.setState({username: text})}
-                    value={this.state.username}
-                    placeholder='用户名'
-                ></TextInput>
-                <TextInput
-                    secureTextEntry={true}
-                    onChangeText={text => this.setState({password: text})}
-                    value={this.state.password}
-                    placeholder='密码'
-                ></TextInput>
-                <View style={styles.buttonContainer}>
-                    <Button
-                        style={styles.btnColumn}
-                        title='登录'
-                        onPress={() => this.login()}
-                    ></Button>
-                    <Button
-                        style={styles.btnColumn}
-                        title='注册'
-                        onPress={() => this.toRegist()}
-                    ></Button>
-                </View>
-            </View>
-        );
-    }
-
     componentDidMount() {
-        //注册完成后登录自动输入账号密码
-        /*const {params} = this.props.navigation.state;
-         if (params) {
-         this.setState(params);
-         }*/
+        const timing = Animated.timing;
+        Animated.parallel([
+            timing(this.state.animation.usernamePostionLeft, {
+                toValue: 0,
+                duration: 700
+            }),
+            timing(this.state.animation.passwordPositionLeft, {
+                toValue: 0,
+                duration: 900
+            }),
+            timing(this.state.animation.loginPositionTop, {
+                toValue: 0,
+                duration: 700
+            }),
+            timing(this.state.animation.statusPositionTop, {
+                toValue: 0,
+                duration: 700
+            })
+
+        ]).start();
     }
 
-    toRegist() {
-        this.props.navigation.navigate('Regist');
-    }
-
-    login() {
-        if (!this.state.username || !this.state.password) {
-            ToastUtils.show('用户名和密码不能为空.');
-            return;
-        }
-
-        WebIM.conn.open({
-            apiUrl: WebIM.config.apiURL,
-            user: this.state.username,
-            pwd: this.state.password,
-            appKey: WebIM.config.appkey,
-            success: function () {
-                console.log('登陆成功');
-            }
-        });
-    }
-
+    /**
+     * IM事件监听
+     */
     imListen() {
         WebIM.conn.listen({
             //连接成功
@@ -109,7 +85,7 @@ export default class LoginScreen extends Component {
                 if (msg.type === 'subscribe') {
                     WebIM.conn.subscribe({//需要反向添加对方好友
                         to: msg.from,
-                        message : '[resp:true]'
+                        message: '[resp:true]'
                     });
                 }
             },
@@ -139,26 +115,85 @@ export default class LoginScreen extends Component {
         });
     }
 
+    /**
+     * 注册
+     */
+    handlePressSignUp() {
+        this.props.navigation.navigate('Regist');
+    }
+
+    /**
+     * 输入变化
+     */
+    handleChangeInput(stateName, text) {
+        this.setState({[stateName]: text});
+    }
+
+    /**
+     * 登录
+     */
+    handePressSignIn() {
+        if (!this.state.username || !this.state.password) {
+            ToastUtils.show('用户名和密码不能为空.');
+            return;
+        }
+
+        WebIM.conn.open({
+            apiUrl: WebIM.config.apiURL,
+            user: this.state.username,
+            pwd: this.state.password,
+            appKey: WebIM.config.appkey
+        });
+    }
+
+    render() {
+        return <BackgroundWrapper>
+            <View style={styles.loginContainer}>
+                <Logo/>
+                <Heading marginTop={16} color="#ffffff" textAlign="center">
+                    {'<RN myChat>'}
+                </Heading>
+                <View style={styles.formContainer}>
+                    <Animated.View style={{position: 'relative', left: this.state.animation.usernamePostionLeft}}>
+                        <Input label="用户名"
+                               icon={<Icon name="user"/>}
+                               value={this.state.username}
+                               onChange={this.handleChangeInput.bind(this, 'username')}
+                        />
+                    </Animated.View>
+                    <Animated.View style={{position: 'relative', left: this.state.animation.passwordPositionLeft}}>
+                        <Input label="密码"
+                               icon={<Icon name="key"/>}
+                               value={this.state.password}
+                               marginTop={23}
+                               onChange={this.handleChangeInput.bind(this, 'password')}
+                               secureTextEntry
+                        />
+                    </Animated.View>
+                    <Animated.View style={{position: 'relative', top: this.state.animation.loginPositionTop}}>
+                        <Button marginTop={60} onPress={this.handePressSignIn.bind(this)}>登录</Button>
+                    </Animated.View>
+                </View>
+            </View>
+            <Animated.View style={{position: 'relative', marginBottom: 25, top: this.state.animation.statusPositionTop}}>
+                <AlertStatus textHelper="还没有账户" textAction="去注册"
+                             onPressAction={this.handlePressSignUp.bind(this)}/>
+            </Animated.View>
+        </BackgroundWrapper>
+    }
+
 }
 
 const styles = StyleSheet.create({
-    container: {
+    loginContainer: {
         flex: 1,
-        flexDirection: 'column',
-        backgroundColor: '#F0F0F0',
-        justifyContent: 'center',
-        padding: 20
+        backgroundColor: 'transparent',
+        paddingTop: 49,
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        paddingLeft: 20,
-        paddingRight: 20,
-        justifyContent: 'space-around'
-    },
-    btnColumn: {
-        width: 200,
-        textAlign: 'center',
-        margin: 15,
-        borderRadius: 3
+    formContainer: {
+        flex: 1,
+        paddingLeft: 15,
+        paddingRight: 15,
+        marginTop: getPlatformValue('android', 25, 45)
     }
 });

@@ -13,23 +13,16 @@ import HomeScreen from "./screen/HomeScreen";
 
 const RootStack = StackNavigator({
     Login: {
-        screen: LoginScreen,
-        navigationOptions: ({navigation}) => ({
-            title: '登录'
-        })
+        screen: LoginScreen
     },
     Regist: {
-        screen: RegistScreen,
-        navigationOptions: ({navigation}) => ({
-            title: '注册'
-        })
+        screen: RegistScreen
     },
     Home: {
-        screen: HomeScreen,
-        navigationOptions: ({navigation}) => ({
-            title: '主页'
-        })
+        screen: HomeScreen
     }
+}, {
+    headerMode: 'none'
 });
 
 AppRegistry.registerComponent('myChat', () => RootStack);

@@ -12,6 +12,7 @@
     "ramdasauce": "^2.1.0",
     "react": "16.0.0-alpha.12",
     "react-native": "0.48.1",
+    "react-native-vector-icons": "^3.0.0",
     "react-navigation": "^1.0.0-beta.11",
     "xmldom": "^0.1.27"
   },
