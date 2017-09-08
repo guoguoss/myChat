@@ -6,7 +6,7 @@
  * Desc:
  */
 import React, {Component} from "react";
-import {StyleSheet, View, Animated} from "react-native";
+import {StyleSheet, View, Animated, Vibration} from "react-native";
 import WebIM from "../Lib/WebIM";
 import StorageUtil from "../utils/StorageUtil";
 import {NavigationActions} from "react-navigation";
@@ -106,6 +106,7 @@ export default class LoginScreen extends Component {
                                     to: msg.from,
                                     message: '[resp:true]'
                                 });
+                                Vibration.vibrate();
                                 ToastUtils.show(`处理${msg.from}的好友申请成功`);
                             }
                         }
@@ -141,6 +142,7 @@ export default class LoginScreen extends Component {
             // 文本信息
             onTextMessage: (message) => {
                 console.log('onTextMessage', message);
+                Vibration.vibrate();
                 ToastUtils.show(`收到来自${message.from}的消息:${message.data}`);
             },
             onPictureMessage: (message) => {

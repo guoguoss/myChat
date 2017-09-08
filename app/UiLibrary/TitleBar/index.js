@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     leftComponent: {
         flex: 1,
         alignItems: 'flex-start',
-        marginLeft: 20
+        marginLeft: 15
     },
     centerComponent: {
         flex: 1,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     rightComponent: {
         flex: 1,
         alignItems: 'flex-end',
-        marginRight: 20
+        marginRight: 15
     },
     buttonStyle: {
         height: 20,
