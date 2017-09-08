@@ -31,6 +31,16 @@ export default class LoginScreen extends Component {
         StorageUtil.get('username', (err, data) => {
             if (data) this.setState({username: data})
         });
+        StorageUtil.get('token', (err, data) => {
+           if (data) {
+               WebIM.conn.open({
+                   apiUrl: WebIM.config.apiURL,
+                   user: this.state.username,
+                   accessToken: data,
+                   appKey: WebIM.config.appkey
+               });
+           }
+        });
         this.imListen();
     }
 
@@ -64,6 +74,7 @@ export default class LoginScreen extends Component {
         WebIM.conn.listen({
             //连接成功
             onOpened: (msg) => {
+                console.log('连接成功, ', msg);
                 StorageUtil.set('username', WebIM.conn.context.userId);
                 StorageUtil.set('token', msg.accessToken);
                 // 出席后才能接受推送消息
@@ -75,18 +86,31 @@ export default class LoginScreen extends Component {
                         NavigationActions.navigate({routeName: 'Home'})
                     ]
                 });
-                NavigationActions.navigate({routeName: 'Home'});
                 this.props.navigation.dispatch(resetAction);
             },
             // 出席消息
             onPresence: (msg) => {
                 console.log('出席消息, ', msg);
+
                 //对方收到请求加为好友
                 if (msg.type === 'subscribe') {
-                    WebIM.conn.subscribe({//需要反向添加对方好友
-                        to: msg.from,
-                        message: '[resp:true]'
+                    WebIM.conn.getRoster({
+                        success: roster => {
+                            console.log('好友列表:', roster);
+                            const userIds = [];
+                            roster.forEach(item => {
+                                userIds.push(item.name);
+                            });
+                            if (userIds.indexOf(msg.from) == -1) {
+                                WebIM.conn.subscribe({//需要反向添加对方好友
+                                    to: msg.from,
+                                    message: '[resp:true]'
+                                });
+                                ToastUtils.show(`处理${msg.from}的好友申请成功`);
+                            }
+                        }
                     });
+
                 }
             },
             // 各种异常
@@ -100,7 +124,16 @@ export default class LoginScreen extends Component {
             },
             // 连接断开
             onClosed: (msg) => {
-                console.log('onClosed');
+                console.log('连接断开, ', msg);
+                StorageUtil.delete('token');
+                // 清除所有路由状态,并跳转至actions中路由
+                const resetAction = NavigationActions.reset({
+                    index: 0,
+                    actions: [
+                        NavigationActions.navigate({routeName: 'Login'})
+                    ]
+                });
+                this.props.navigation.dispatch(resetAction);
             },
             // 更新黑名单
             onBlacklistUpdate: (list) => {
@@ -108,6 +141,7 @@ export default class LoginScreen extends Component {
             // 文本信息
             onTextMessage: (message) => {
                 console.log('onTextMessage', message);
+                ToastUtils.show(`收到来自${message.from}的消息:${message.data}`);
             },
             onPictureMessage: (message) => {
                 console.log('onPictureMessage', message);
@@ -138,6 +172,7 @@ export default class LoginScreen extends Component {
             return;
         }
 
+        WebIM.conn.close();
         WebIM.conn.open({
             apiUrl: WebIM.config.apiURL,
             user: this.state.username,

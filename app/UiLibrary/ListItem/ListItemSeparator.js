@@ -22,14 +22,14 @@ export default class Separator extends React.Component {
         lineHeight: PropTypes.number,
         lineColor: PropTypes.string,
         paddingLeft: PropTypes.number
-    }
+    };
 
     static defaultProps = {
         backgroundColor: Color.White,
         lineHeight: StyleSheet.hairlineWidth,
         lineColor: Color.LightGrey,
         paddingLeft: 15
-    }
+    };
 
     render() {
         let { backgroundColor, lineHeight, lineColor, paddingLeft } = this.props;

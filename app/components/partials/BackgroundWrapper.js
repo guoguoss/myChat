@@ -33,7 +33,7 @@ export default class BackgroundWrapper extends Component {
         const style = [
             styleWrapper.containerView,
             getStyleFromProps(['paddingTop'], this.props)
-        ]
+        ];
         return <View style={style}>
             {this.renderChildren()}
         </View>
@@ -46,10 +46,11 @@ export default class BackgroundWrapper extends Component {
 }
 
 BackgroundWrapper.propTypes = {
+    transparent: PropTypes.bool,
     iconLeft: PropTypes.string,
     onPressIcon: PropTypes.func,
     paddingTop: PropTypes.number
-}
+};
 
 const styleWrapper = {
     containerImage: {
@@ -69,4 +70,4 @@ const styleWrapper = {
         opacity: .8,
         backgroundColor: 'transparent'
     }
-}
+};

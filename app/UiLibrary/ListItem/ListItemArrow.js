@@ -18,7 +18,7 @@ import FontSize from '../FontSize';
 export default class ListItemArrow extends React.Component {
     static propTypes = {
         style: PropTypes.any
-    }
+    };
 
     render() {
         let { style } = this.props;

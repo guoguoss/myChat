@@ -17,3 +17,4 @@ export { default as TextInput } from './TextInput';
 export { default as Button } from './Button';
 export { default as Color } from './Color';
 export { default as FontSize } from './FontSize';
+export { default as TitleBar } from './TitleBar';

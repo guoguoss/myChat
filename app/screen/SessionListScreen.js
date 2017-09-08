@@ -8,7 +8,7 @@
 import React, {Component, PropTypes} from "react";
 import {StyleSheet, FlatList, Image, Text, TouchableHighlight, View} from "react-native";
 import commonStyles from "../utils/CommonStyles";
-import {Badge, Swipeout, Color, FontSize} from "../UiLibrary";
+import {Badge, Swipeout, Color, FontSize, TitleBar, ListItem} from "../UiLibrary";
 
 export default class SessionListScreen extends Component {
     static navigationOptions = {
@@ -28,48 +28,69 @@ export default class SessionListScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            data: [
-                {key: '1111111'},
-                {key: '2222222'},
-                {key: '3333333'},
-                {key: '4444444'},
-                {key: '5555555'},
-                {key: '6666666'}
-            ]
+            data: [{
+                key: '1',
+                avatar: 'http://image-2.plusman.cn/app/im-client/empty-message.png',
+                name: '我的好友',
+                unReadMessageCount: 3,
+                latestTime: '3分钟前',
+                latestMessage: '最后的消息'
+            }, {
+                key: '2',
+                avatar: 'http://image-2.plusman.cn/app/im-client/empty-message.png',
+                name: '我的好友',
+                unReadMessageCount: 3,
+                latestTime: '3分钟前',
+                latestMessage: '最后的消息'
+            }]
         };
     }
 
     renderItem = ({item}) => (
-        <Swipeout
-            key={item.key}
-            rightButtons={[{
-                title: '删除',
-                type: 'Delete',
-                onPress: () => {
+        <Swipeout key={item.key}
+                  rightButtons={[{
+                      title: '删除',
+                      type: 'Delete',
+                      onPress: () => {
 
-                }
-            }]}
-        >
+                      }
+                  }]}>
             <ConversationCell
-                avatar={item.key}
-                unReadMessageCount={1}
-                name={item.key}
-                latestTime={item.key}
-                latestMessage={item.key}
+                avatar={item.avatar}
+                unReadMessageCount={item.unReadMessageCount}
+                name={item.name}
+                latestTime={item.latestTime}
+                latestMessage={item.latestMessage}
                 onPress={() => {
 
-                }}
-            />
+                }}/>
         </Swipeout>
     );
+
+    renderEmpty = () => (
+        <View style={styles.emptyMessage}>
+            <Image source={require('../images/empty-message.png')} style={styles.emptyMessageImage}/>
+            <Text style={styles.emptyMessageText}>暂无消息</Text>
+        </View>
+    );
+
+    renderSeparator(sectionID: number, rowID: number, adjacentRowHighlighted: bool) {
+        return (
+            <ListItem.Separator
+                key={`${sectionID}-${rowID}`}
+            />
+        );
+    }
 
     render() {
         return (
             <View>
-                <Text>会话</Text>
+                <TitleBar title="会话"/>
                 <FlatList
                     data={this.state.data}
                     renderItem={this.renderItem}
+                    ListEmptyComponent={this.renderEmpty}
+                    ItemSeparatorComponent={this.renderSeparator}
                 />
             </View>
         );
